@@ -7,8 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, func, or_
 from pydantic import BaseModel
 
-from backend.db.session import get_db
-from backend.core.auth import get_current_user
+from backend.api.dependencies import get_db, get_current_user
 
 # Dependency to check admin role
 async def get_admin_user(current_user: dict = Depends(get_current_user)):

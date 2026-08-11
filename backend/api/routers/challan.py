@@ -58,6 +58,7 @@ async def upload_challan(
 
 
 @router.get("/events", response_model=List[ChallanEventResponse])
+@router.get("/user-history", response_model=List[ChallanEventResponse])
 async def list_events(
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)

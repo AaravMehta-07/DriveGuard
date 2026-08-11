@@ -722,6 +722,36 @@ class GeospatialQueryService:
         })
         return [dict(row) for row in result.mappings().all()]
 
+    async def get_signals_near_point(
+        self,
+        position_lon: float,
+        position_lat: float,
+        radius_m: float = 1000.0,
+    ) -> list[Any]:
+        """
+        Get traffic signals near a point with enforcement flags.
+        """
+        query = text("""
+            SELECT
+                id,
+                ST_Y(location) AS latitude,
+                ST_X(location) AS longitude,
+                has_red_light_camera
+            FROM traffic_signal_junctions
+            WHERE ST_DWithin(
+                location::geography,
+                ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
+                :radius_m
+            )
+        """)
+        result = await self._db.execute(query, {
+            "lon": position_lon,
+            "lat": position_lat,
+            "radius_m": radius_m,
+        })
+        rows = result.mappings().all()
+        return [type('SignalPoint', (), dict(row)) for row in rows]
+
     # ─── Route Compliance Scan ───────────────────────────────────────────
 
     async def scan_route_compliance(

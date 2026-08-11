@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, status
 from pydantic import BaseModel, Field
-from typing import List, Optional, Union
+from typing import List, Optional
 from datetime import datetime
-import pytz
+from zoneinfo import ZoneInfo
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.dependencies import get_db
@@ -41,17 +41,18 @@ async def get_speed_limit(
     lon: float = Query(..., ge=-180.0, le=180.0),
     heading: Optional[float] = Query(None, ge=0.0, le=360.0),
     road_level: Optional[int] = None,
+    vehicle_class: str = "LMV",
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Get the speed limit at a specific coordinate and heading.
+    Get the speed limit at a specific coordinate using position_lon/position_lat signatures.
     Returns 404 if speed limit is unknown to ensure we never invent values.
     """
     service = GeospatialQueryService(db)
-    speed_limit = await service.get_speed_limit_at(
-        lat=lat,
-        lon=lon,
-        heading=heading,
+    speed_limit = await service.get_speed_limit_at_point(
+        position_lon=lon,
+        position_lat=lat,
+        vehicle_class=vehicle_class,
         road_level=road_level
     )
     
@@ -65,70 +66,83 @@ async def get_speed_limit(
 
 @router.get("/restrictions", response_model=List[RestrictionResponse])
 async def get_restrictions(
-    route_wkt: Optional[str] = None,
-    junction_id: Optional[str] = None,
+    lat: float = Query(..., ge=-90.0, le=90.0),
+    lon: float = Query(..., ge=-180.0, le=180.0),
+    radius_m: float = Query(100.0, gt=0),
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Evaluates active temporal rules in Asia/Kolkata timezone for a route or junction.
+    Evaluates active restrictions near a given coordinate in Asia/Kolkata timezone.
     """
-    if not route_wkt and not junction_id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Must provide either route_wkt or junction_id")
-        
-    engine = ComplianceEngine(db)
+    service = GeospatialQueryService(db)
+    engine = ComplianceEngine(service)
     
-    # All temporal evaluations use Asia/Kolkata timezone
-    local_tz = pytz.timezone('Asia/Kolkata')
-    current_time_kolkata = datetime.now(local_tz)
+    restrictions_data = await engine.evaluate_restrictions(point_lon=lon, point_lat=lat, radius_m=radius_m)
     
-    restrictions = await engine.evaluate_restrictions(
-        route_wkt=route_wkt,
-        junction_id=junction_id,
-        eval_time=current_time_kolkata
-    )
-    
-    return restrictions
+    return [
+        RestrictionResponse(
+            restriction_id=str(r.get("id", "")),
+            type=r.get("restriction_type", "UNKNOWN"),
+            description=r.get("title", r.get("description", "")),
+            active=True
+        )
+        for r in restrictions_data
+    ]
 
 @router.get("/signals", response_model=List[SignalResponse])
 async def get_signals(
-    route_wkt: str = Query(..., description="WKT of the route"),
+    lat: float = Query(..., ge=-90.0, le=90.0),
+    lon: float = Query(..., ge=-180.0, le=180.0),
+    radius_m: float = Query(1000.0, gt=0),
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Returns signals along a route with enforcement flags.
+    Returns signals near a coordinate with red-light camera enforcement flags.
     """
     service = GeospatialQueryService(db)
-    signals = await service.get_signals_along_route(route_wkt=route_wkt)
-    return signals
+    signals_data = await service.get_signals_near_point(position_lon=lon, position_lat=lat, radius_m=radius_m)
+    return [
+        SignalResponse(
+            id=str(s.id),
+            lat=s.latitude,
+            lon=s.longitude,
+            has_enforcement=s.has_red_light_camera
+        )
+        for s in signals_data
+    ]
 
 @router.get("/temporal", response_model=TemporalResponse)
 async def get_temporal(
+    segment_id: str = Query(..., description="ID of road segment"),
     eval_time: Optional[datetime] = None,
-    lat: float = Query(..., ge=-90.0, le=90.0),
-    lon: float = Query(..., ge=-180.0, le=180.0),
     db: AsyncSession = Depends(get_db)
 ):
     """
     Checks active temporary restrictions at a given datetime (Asia/Kolkata).
     """
-    engine = ComplianceEngine(db)
-    local_tz = pytz.timezone('Asia/Kolkata')
+    service = GeospatialQueryService(db)
+    engine = ComplianceEngine(service)
+    local_tz = ZoneInfo('Asia/Kolkata')
     
     if eval_time:
         if eval_time.tzinfo is None:
-            eval_time = local_tz.localize(eval_time)
+            eval_time = eval_time.replace(tzinfo=local_tz)
         else:
             eval_time = eval_time.astimezone(local_tz)
     else:
         eval_time = datetime.now(local_tz)
         
-    restrictions = await engine.get_temporal_restrictions(
-        lat=lat,
-        lon=lon,
-        eval_time=eval_time
-    )
+    restrictions_data = await engine.get_temporal_restrictions(road_segment_id=segment_id, dt=eval_time)
     
     return TemporalResponse(
-        active_restrictions=restrictions,
+        active_restrictions=[
+            RestrictionResponse(
+                restriction_id=str(r.get("id", "")),
+                type="SPEED_LIMIT",
+                description=f"Speed limit {r.get('speed_limit_kph')} km/h",
+                active=True
+            )
+            for r in restrictions_data
+        ],
         timezone="Asia/Kolkata"
     )

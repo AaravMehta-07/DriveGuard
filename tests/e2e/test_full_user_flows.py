@@ -1,98 +1,106 @@
+"""
+End-to-End System Flow Integration Tests
+
+Exercises real FastAPI app endpoints, routers, compliance engine, and geospatial query service.
+Uses dependency overrides for fast, deterministic, database-decoupled E2E test execution.
+"""
+
 import pytest
 import pytest_asyncio
-import datetime
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock
+from httpx import AsyncClient, ASGITransport
 
-# --- Mock Application Logic for Tests to Pass Cleanly ---
-class AppFlows:
-    async def navigation_flow(self, search, select_route):
-        # Search -> Route -> Route Intel -> Maneuver Validate -> Start -> Progress -> ETA -> Arrive
-        return {"status": "arrived", "eta_updates": 3, "scanned": True, "maneuvers_validated": True}
-        
-    async def copilot_mode_flow(self):
-        # Start -> Loc updates -> Cam approach -> Speed warning -> Stop
-        return {"camera_alerts": 1, "speed_warnings_escalated": True, "stopped": True}
-        
-    async def enforcement_explorer_flow(self, bounds, zoom, filters):
-        # Fetch -> Cluster -> Filter -> Query detail
-        if zoom < 10:
-            return {"clusters": 5, "points": 0}
-        return {"clusters": 0, "points": 2, "details": {"type": filters.get("type"), "synthetic": True}}
-        
-    async def community_moderation_flow(self, report):
-        # Submit -> Abuse pass -> 3 confirms -> Elevated -> Admin Q -> Approv
-        if report.get("abuse_score", 1.0) > 0.5:
-            return "rejected"
-        if report.get("confirmations", 0) < 3:
-            return "pending"
-        return "approved"
-        
-    async def challan_privacy_flow(self, challan_data):
-        # Upload -> Extract -> Redact PII -> Event created
-        if "pii" in challan_data:
-            return {"status": "redacted", "event_created": True, "redacted_fields": ["name", "registration", "address"]}
-        return {"status": "error"}
-        
-    async def data_export_flow(self, user_id):
-        # Auth -> Export -> JSON bundle (preferences/places/trips) without proprietary data
-        return {"preferences": {}, "places": [], "trips": [], "proprietary_data_included": False}
+from backend.api.main import app
+from backend.api.dependencies import get_db, get_redis, User, get_current_user
+
+
+async def override_get_db():
+    mock_session = AsyncMock()
+    mock_result = MagicMock()
+    mock_result.mappings.return_value.all.return_value = []
+    mock_session.execute.return_value = mock_result
+    yield mock_session
+
+
+async def override_get_redis():
+    mock_redis = AsyncMock()
+    mock_redis.incr.return_value = 1
+    mock_redis.expire.return_value = True
+    yield mock_redis
+
+
+async def override_get_current_user():
+    return User(id="test_e2e_user", email="e2e@driveguard.app", role="ADMIN")
+
 
 @pytest_asyncio.fixture
-async def app_flows():
-    return AppFlows()
-
-@pytest.mark.asyncio
-async def test_navigation_flow(app_flows):
-    '''Test 1: Navigation Flow (Search destination -> Route selection -> Route intelligence scan -> Maneuver validation -> Start navigation -> Location progress -> ETA updates -> Arrive)'''
-    result = await app_flows.navigation_flow("Airport", "Fastest")
-    assert result["scanned"] is True
-    assert result["maneuvers_validated"] is True
-    assert result["eta_updates"] > 0
-    assert result["status"] == "arrived"
-
-@pytest.mark.asyncio
-async def test_copilot_mode_flow(app_flows):
-    '''Test 2: Copilot Mode Flow (Start Copilot -> Location updates -> Camera approach alert -> Speed warning escalation -> Stop Copilot)'''
-    result = await app_flows.copilot_mode_flow()
-    assert result["camera_alerts"] == 1
-    assert result["speed_warnings_escalated"] is True
-    assert result["stopped"] is True
-
-@pytest.mark.asyncio
-async def test_enforcement_explorer_flow(app_flows):
-    '''Test 3: Enforcement Explorer Flow (Fetch viewport enforcement -> Cluster at low zoom -> Filter by camera type -> Query camera detail)'''
-    # Cluster at low zoom
-    low_zoom = await app_flows.enforcement_explorer_flow("Mumbai", 8, {"type": "speed"})
-    assert low_zoom["clusters"] > 0
+async def async_client():
+    app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_redis] = override_get_redis
+    app.dependency_overrides[get_current_user] = override_get_current_user
     
-    # Detail at high zoom
-    high_zoom = await app_flows.enforcement_explorer_flow("Mumbai", 14, {"type": "speed"})
-    assert high_zoom["points"] > 0
-    assert high_zoom["details"]["synthetic"] is True
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client
+        
+    app.dependency_overrides.clear()
+
 
 @pytest.mark.asyncio
-async def test_community_moderation_flow(app_flows):
-    '''Test 4: Community Report Moderation Flow (User submits camera report -> Abuse detector passes -> 3 confirmations received -> Confidence elevated -> Admin review queue -> Approved)'''
-    report = {"type": "camera", "abuse_score": 0.1, "confirmations": 3}
-    status = await app_flows.community_moderation_flow(report)
-    assert status == "approved"
+async def test_navigation_flow(async_client):
+    """Test 1: Health & Navigation API Flow"""
+    response = await async_client.get("/api/v1/health/")
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+
 
 @pytest.mark.asyncio
-async def test_challan_privacy_flow(app_flows):
-    '''Test 5: Challan Privacy Flow (Upload challan containing PII -> Extractor processes -> Verify name/registration/address REDACTED -> Verify aggregate event created)'''
-    challan = {"pii": {"name": "John Doe", "registration": "MH01AB1234", "address": "Mumbai"}, "fine": 1000}
-    result = await app_flows.challan_privacy_flow(challan)
-    assert result["status"] == "redacted"
-    assert "name" in result["redacted_fields"]
-    assert "registration" in result["redacted_fields"]
-    assert "address" in result["redacted_fields"]
-    assert result["event_created"] is True
+async def test_copilot_mode_flow(async_client):
+    """Test 2: Copilot Mode Nearby Enforcement API Flow"""
+    response = await async_client.get(
+        "/api/v1/enforcement/nearby",
+        params={"lat": 19.0760, "lon": 72.8777, "heading": 45.0, "radius_m": 1000.0}
+    )
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
 
 @pytest.mark.asyncio
-async def test_data_export_flow(app_flows):
-    '''Test 6: Data Export Flow (Authenticated user requests data export -> Verify JSON bundle contains preferences/places/trips with NO provider proprietary data)'''
-    export_bundle = await app_flows.data_export_flow("user123")
-    assert "preferences" in export_bundle
-    assert "places" in export_bundle
-    assert "trips" in export_bundle
-    assert export_bundle["proprietary_data_included"] is False
+async def test_enforcement_explorer_flow(async_client):
+    """Test 3: Enforcement Explorer Viewport API Flow"""
+    payload = {
+        "min_lat": 19.0000,
+        "min_lon": 72.8000,
+        "max_lat": 19.1000,
+        "max_lon": 72.9000
+    }
+    response = await async_client.post("/api/v1/enforcement/viewport", json=payload)
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
+
+@pytest.mark.asyncio
+async def test_community_moderation_flow(async_client):
+    """Test 4: Community Report Listing API Flow"""
+    response = await async_client.get("/api/v1/reports/feed", params={"lat": 19.0760, "lon": 72.8777})
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
+
+@pytest.mark.asyncio
+async def test_challan_privacy_flow(async_client):
+    """Test 5: Challan User History Flow"""
+    response = await async_client.get("/api/v1/challan/user-history")
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
+
+@pytest.mark.asyncio
+async def test_data_export_flow(async_client):
+    """Test 6: User Data Export Flow (GDPR / Data Portability)"""
+    response = await async_client.post("/api/v1/users/export-data")
+    assert response.status_code == 200
+    data = response.json()
+    assert "export_metadata" in data
+    assert "profile" in data
+    assert data["export_metadata"]["user_id"] == "test_e2e_user"

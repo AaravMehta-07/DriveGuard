@@ -81,6 +81,21 @@ services:
     networks:
       - driveguard-net
 
+  beat:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: ["celery", "-A", "backend.workers.celery_app", "beat", "-l", "INFO"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    networks:
+      - driveguard-net
+
   admin:
     build:
       context: ./apps/admin

@@ -7,7 +7,7 @@ on:
     branches: [master, main, develop]
 
 jobs:
-  # Job 1: Backend quality checks (Ruff format, Ruff lint, mypy)
+  # Job 1: Backend quality checks (Ruff lint, pytest unit & contracts)
   backend-quality:
     runs-on: ubuntu-latest
     steps:
@@ -27,7 +27,6 @@ jobs:
         run: |
           pip install ruff
           ruff check backend/ packages/ tests/
-        continue-on-error: true
       - name: Unit & Provider Contract Tests
         run: |
           pytest tests/unit/ tests/provider-contract/ -v
@@ -79,9 +78,9 @@ jobs:
         env:
           DATABASE_URL: postgresql+asyncpg://driveguard:driveguard@localhost:5432/driveguard_test
           REDIS_URL: redis://localhost:6379/0
-      - name: Mumbai Golden Routes & E2E Integration Suite
+      - name: Mumbai Golden Routes & E2E & Simulation Suite
         run: |
-          pytest tests/golden-routes/ tests/e2e/ -v
+          pytest tests/golden-routes/ tests/e2e/ tests/simulation/ -v
         env:
           DATABASE_URL: postgresql+asyncpg://driveguard:driveguard@localhost:5432/driveguard_test
           REDIS_URL: redis://localhost:6379/0
@@ -110,22 +109,17 @@ jobs:
           channel: 'stable'
       - name: Get dependencies
         run: cd apps/mobile && flutter pub get
-        continue-on-error: true
       - name: Analyze Flutter code
         run: cd apps/mobile && flutter analyze
-        continue-on-error: true
       - name: Run Flutter tests
         run: cd apps/mobile && flutter test
-        continue-on-error: true
       - name: Build Android APK
         run: cd apps/mobile && flutter build apk --debug
-        continue-on-error: true
       - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: driveguard-android-apk
           path: apps/mobile/build/app/outputs/flutter-apk/app-debug.apk
-        continue-on-error: true
 
   # Job 5: Security & Secret Scanning
   security:
@@ -143,7 +137,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build API Docker Image
-        run: docker build -t driveguard-api:latest -f backend/Dockerfile backend/
+        run: docker build -t driveguard-api:latest -f backend/Dockerfile .
       - name: Build Admin Docker Image
         run: docker build -t driveguard-admin:latest -f apps/admin/Dockerfile apps/admin/
 
