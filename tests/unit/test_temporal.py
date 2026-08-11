@@ -1,12 +1,12 @@
-"""Tests for temporal rules."""
+"""Tests for temporal rules with Asia/Kolkata timezone support per Correction #40."""
 import pytest
-from datetime import datetime, time, date
-import pytz
+from datetime import datetime, time, date, timezone
+from zoneinfo import ZoneInfo
 from packages.domain_models.compliance import TemporalRule
 
 
 def test_weekday_restriction():
-    rule = TemporalRule(days_of_week=[0, 1, 2, 3, 4]) # Monday-Friday
+    rule = TemporalRule(days_of_week=[0, 1, 2, 3, 4])  # Monday-Friday
     
     # Monday
     dt_monday = datetime(2026, 8, 10)
@@ -70,8 +70,8 @@ def test_date_range():
 
 
 def test_asia_kolkata_timezone():
-    tz = pytz.timezone('Asia/Kolkata')
-    dt_utc = datetime(2026, 8, 11, 2, 30, tzinfo=pytz.UTC)
+    tz = ZoneInfo('Asia/Kolkata')
+    dt_utc = datetime(2026, 8, 11, 2, 30, tzinfo=timezone.utc)
     dt_ist = dt_utc.astimezone(tz)
     
     assert dt_ist.hour == 8

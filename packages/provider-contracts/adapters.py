@@ -7,8 +7,8 @@ Unsupported methods return an UnsupportedCapability object rather than crashing 
 """
 
 from typing import Any, Optional
-from packages.provider-contracts.capabilities import ProviderCapabilities
-from packages.provider-contracts.interfaces import (
+from .capabilities import ProviderCapabilities
+from .interfaces import (
     MapProvider, SearchProvider, GeocodingProvider, RoutingProvider,
     NavigationProvider, TrafficProvider, SpeedLimitProvider, SignalProvider,
     EnforcementDataProvider, RoadGraphProvider, UnsupportedCapability

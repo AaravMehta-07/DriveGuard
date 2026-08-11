@@ -9,9 +9,9 @@ Verifies that:
 """
 
 import pytest
-from packages.provider-contracts.capabilities import ProviderCapabilities
-from packages.provider-contracts.interfaces import UnsupportedCapability
-from packages.provider-contracts.adapters import (
+from packages.provider_contracts.capabilities import ProviderCapabilities
+from packages.provider_contracts.interfaces import UnsupportedCapability
+from packages.provider_contracts.adapters import (
     MapplsProviderAdapter,
     GoogleMapsProviderAdapter,
     OpenStreetMapProviderAdapter
