@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.dependencies import get_db
 from backend.compliance.engine import ComplianceEngine
-from backend.geospatial.services import GeospatialQueryService
+from backend.geospatial.queries import GeospatialQueryService
 
 router = APIRouter(prefix="/compliance", tags=["compliance"])
 

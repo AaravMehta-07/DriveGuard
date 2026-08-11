@@ -6,6 +6,8 @@ import '../../core/theme/tokens.dart';
 import '../../core/theme/typography.dart';
 import '../../shared/widgets/primary_drive_button.dart';
 import '../../shared/widgets/route_intelligence_summary.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 /// Route Selection & Intelligence Screen for DriveGuard V3.
 /// Displays destination details, candidate routes (Recommended, Fastest, DriveGuard Route),
@@ -204,20 +206,42 @@ class _RouteSelectionScreenState extends ConsumerState<RouteSelectionScreen> {
   }
 
   Widget _buildRouteMap() {
-    return Container(
-      color: const Color(0xFF0F172A),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.alt_route_rounded, size: 72, color: DriveGuardColors.brandPrimary),
-            const SizedBox(height: 12),
-            Text('Route Options & Intelligence', style: DriveGuardTypography.body.copyWith(color: Colors.white70)),
-            const SizedBox(height: 4),
-            Text('Scanning compliance along polyline...', style: DriveGuardTypography.secondaryMeta.copyWith(color: Colors.white38)),
+    return FlutterMap(
+      options: MapOptions(
+        initialCenter: const LatLng(19.0760, 72.8777),
+        initialZoom: 14.0,
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.driveguard.app',
+        ),
+        PolylineLayer(
+          polylines: [
+            Polyline(
+              points: [const LatLng(19.0760, 72.8777), const LatLng(19.0960, 72.8877)],
+              color: DriveGuardColors.brandPrimary,
+              strokeWidth: 6.0,
+            ),
           ],
         ),
-      ),
+        MarkerLayer(
+          markers: [
+            Marker(
+              point: const LatLng(19.0760, 72.8777),
+              width: 30,
+              height: 30,
+              child: const Icon(Icons.my_location, color: Colors.blueAccent, size: 30),
+            ),
+            Marker(
+              point: const LatLng(19.0960, 72.8877),
+              width: 30,
+              height: 30,
+              child: const Icon(Icons.location_on, color: Colors.redAccent, size: 30),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

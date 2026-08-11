@@ -1,15 +1,31 @@
 """Tests for compliance engine."""
 import pytest
+from datetime import datetime
 from packages.domain_models.compliance import ManeuverValidationResult
+from backend.compliance.engine import ComplianceEngine
 
-def validate_maneuver(is_allowed, confidence):
-    if confidence < 0.5:
-        return ManeuverValidationResult.UNCERTAIN
-    if is_allowed:
-        return ManeuverValidationResult.ALLOWED
-    return ManeuverValidationResult.PROHIBITED
-
-def test_maneuver_validation():
-    assert validate_maneuver(True, 0.9) == ManeuverValidationResult.ALLOWED
-    assert validate_maneuver(False, 0.9) == ManeuverValidationResult.PROHIBITED
-    assert validate_maneuver(True, 0.3) == ManeuverValidationResult.UNCERTAIN
+@pytest.mark.asyncio
+async def test_maneuver_validation():
+    engine = ComplianceEngine(geo_query_service=None)
+    dt = datetime(2026, 8, 11, 10, 0)
+    
+    # Without geo_service, should return UNCERTAIN
+    res = await engine.validate_maneuver("j1", "s1", "s2", "PRIVATE_CAR", dt)
+    assert res.status == "UNCERTAIN"
+    
+    class MockGeo:
+        class MockDB:
+            def text(self, q): return q
+            async def execute(self, q, p=None):
+                class MockResult:
+                    def mappings(self):
+                        class MockMappings:
+                            def all(self):
+                                return [{"restriction_type": "NO_RIGHT_TURN", "vehicle_types": ["PRIVATE_CAR"]}]
+                        return MockMappings()
+                return MockResult()
+        _db = MockDB()
+        
+    engine = ComplianceEngine(geo_query_service=MockGeo())
+    res = await engine.validate_maneuver("j1", "s1", "s2", "PRIVATE_CAR", dt)
+    assert res.status == "PROHIBITED"

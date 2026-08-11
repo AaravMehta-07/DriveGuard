@@ -13,6 +13,8 @@ import '../../shared/widgets/navigation_maneuver_card.dart';
 import '../../shared/widgets/restriction_warning_card.dart';
 import '../../shared/widgets/secondary_maneuver_hint.dart';
 import '../../shared/widgets/speed_limit_badge.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 /// Active Navigation Screen for DriveGuard V3.
 /// The core driving interface designed for minimal distraction and high legibility.
@@ -191,32 +193,36 @@ class _NavigationScreenState extends ConsumerState<NavigationScreen> {
   }
 
   Widget _buildMapViewport(MapViewportInsets insets) {
-    return Container(
-      color: const Color(0xFF0F172A),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.navigation_rounded,
-              size: 64,
-              color: DriveGuardColors.brandPrimary,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'DriveGuard Map Viewport',
-              style: DriveGuardTypography.body.copyWith(color: Colors.white70),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Heading Up Navigation Mode · Provider Agnostic',
-              style: DriveGuardTypography.secondaryMeta.copyWith(
-                color: Colors.white38,
-              ),
+    return FlutterMap(
+      options: MapOptions(
+        initialCenter: const LatLng(19.0760, 72.8777),
+        initialZoom: 16.0,
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.driveguard.app',
+        ),
+        MarkerLayer(
+          markers: [
+            Marker(
+              point: const LatLng(19.0760, 72.8777),
+              width: 50,
+              height: 50,
+              child: const Icon(Icons.navigation, color: DriveGuardColors.brandPrimary, size: 50),
             ),
           ],
         ),
-      ),
+        PolylineLayer(
+          polylines: [
+            Polyline(
+              points: [const LatLng(19.0760, 72.8777), const LatLng(19.0800, 72.8800)],
+              color: Colors.blueAccent,
+              strokeWidth: 5.0,
+            ),
+          ],
+        ),
+      ],
     );
   }
 

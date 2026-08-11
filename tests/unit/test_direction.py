@@ -1,10 +1,9 @@
 """Tests for direction math."""
 import pytest
-
+from backend.geospatial.queries import GeospatialQueryService
 
 def get_heading_diff(h1, h2):
-    diff = abs(h1 - h2)
-    return min(diff, 360 - diff)
+    return GeospatialQueryService._heading_difference(h1, h2)
 
 
 def test_same_direction():

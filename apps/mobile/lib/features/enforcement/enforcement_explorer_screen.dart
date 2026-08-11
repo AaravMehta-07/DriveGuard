@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../../core/compliance/viewport_insets.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/theme/typography.dart';
@@ -29,6 +31,14 @@ class _EnforcementExplorerScreenState extends ConsumerState<EnforcementExplorerS
     'RESTRICTIONS',
   ];
 
+  // Sample verified camera markers for Mumbai explorer
+  final List<Map<String, dynamic>> _explorerCameras = [
+    {'name': 'WEH Speed Camera · Vile Parle', 'point': const LatLng(19.0960, 72.8530), 'type': 'FIXED_SPEED', 'limit': 50},
+    {'name': 'Marine Drive Speed Camera', 'point': const LatLng(18.9440, 72.8230), 'type': 'FIXED_SPEED', 'limit': 50},
+    {'name': 'BKC Signal Enforcement Junction', 'point': const LatLng(19.0650, 72.8680), 'type': 'RED_LIGHT', 'limit': 40},
+    {'name': 'EEH Average Speed Entry Zone', 'point': const LatLng(19.1200, 72.9300), 'type': 'AVERAGE_SPEED', 'limit': 70},
+  ];
+
   @override
   Widget build(BuildContext context) {
     final insets = MapViewportInsets.fromContext(context);
@@ -45,7 +55,7 @@ class _EnforcementExplorerScreenState extends ConsumerState<EnforcementExplorerS
       ),
       body: Stack(
         children: [
-          // 1. Full-screen Enforcement Map
+          // 1. Full-screen Interactive Enforcement Map
           _buildExplorerMap(),
 
           // 2. TOP: Horizontal Filter Chips
@@ -120,20 +130,37 @@ class _EnforcementExplorerScreenState extends ConsumerState<EnforcementExplorerS
   }
 
   Widget _buildExplorerMap() {
-    return Container(
-      color: const Color(0xFF0F172A),
-      child: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.explore_rounded, size: 72, color: DriveGuardColors.brandPrimary),
-            SizedBox(height: 12),
-            Text('Mumbai Enforcement Map Viewport', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-            SizedBox(height: 4),
-            Text('Clustered geospatial camera layer · PostGIS query', style: TextStyle(color: Colors.white38, fontSize: 12)),
-          ],
-        ),
+    return FlutterMap(
+      options: const MapOptions(
+        initialCenter: LatLng(19.0760, 72.8777),
+        initialZoom: 12.0,
       ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.driveguard.app',
+        ),
+        MarkerLayer(
+          markers: _explorerCameras.map((cam) {
+            return Marker(
+              point: cam['point'] as LatLng,
+              width: 40,
+              height: 40,
+              child: GestureDetector(
+                onTap: _showCameraDetails,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: DriveGuardColors.verifiedGreen,
+                    shape: BoxShape.circle,
+                    boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 6)],
+                  ),
+                  child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 22),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 

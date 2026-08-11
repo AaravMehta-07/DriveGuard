@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../../core/compliance/viewport_insets.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/theme/typography.dart';
@@ -34,7 +36,7 @@ class _CopilotScreenState extends ConsumerState<CopilotScreen> {
       backgroundColor: DriveGuardColors.nightBackground,
       body: Stack(
         children: [
-          // 1. Map Layer
+          // 1. Interactive Map Layer
           _buildMapLayer(),
 
           // 2. TOP: Status Pill & Current Road
@@ -149,26 +151,46 @@ class _CopilotScreenState extends ConsumerState<CopilotScreen> {
   }
 
   Widget _buildMapLayer() {
-    return Container(
-      color: const Color(0xFF0F172A),
-      child: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.shield_rounded, size: 80, color: DriveGuardColors.brandPrimary),
-            SizedBox(height: 12),
-            Text(
-              'DriveGuard Copilot Active',
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+    return FlutterMap(
+      options: const MapOptions(
+        initialCenter: LatLng(19.0760, 72.8777),
+        initialZoom: 15.0,
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.driveguard.app',
+        ),
+        MarkerLayer(
+          markers: [
+            Marker(
+              point: const LatLng(19.0760, 72.8777),
+              width: 44,
+              height: 44,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: DriveGuardColors.brandPrimary,
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(color: Colors.black38, blurRadius: 8)],
+                ),
+                child: const Icon(Icons.shield_rounded, color: Colors.white, size: 24),
+              ),
             ),
-            SizedBox(height: 4),
-            Text(
-              'GPS Tracking · Live Speed Limit · Camera Awareness',
-              style: TextStyle(color: Colors.white54, fontSize: 14),
+            Marker(
+              point: const LatLng(19.0820, 72.8820),
+              width: 36,
+              height: 36,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: DriveGuardColors.verifiedGreen.withOpacity(0.9),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 20),
+              ),
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 }

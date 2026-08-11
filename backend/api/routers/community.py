@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import time
 
 from backend.api.dependencies import get_db, get_current_user
-from backend.community.processor import ReportProcessor
-from backend.community.trust import ReporterTrustEngine
+from backend.moderation.report_processor import ReportProcessor
+from backend.moderation.trust_engine import ReporterTrustEngine
 
 router = APIRouter(prefix="/reports", tags=["community"])
 

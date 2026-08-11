@@ -5,6 +5,8 @@ import '../../core/compliance/viewport_insets.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/theme/typography.dart';
 import '../../shared/widgets/primary_drive_button.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 /// Navigation Home Screen for DriveGuard V3.
 /// Full-screen map with floating search bar, quick destinations (Home/Work),
@@ -147,26 +149,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildMapLayer() {
-    return Container(
-      color: const Color(0xFF0B132B),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.map_rounded, size: 80, color: Colors.white12),
-            const SizedBox(height: 12),
-            Text(
-              'DriveGuard Mumbai Map',
-              style: DriveGuardTypography.navigationAction.copyWith(color: Colors.white38),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Speed limits · Verified cameras · Prohibited turns',
-              style: DriveGuardTypography.secondaryMeta.copyWith(color: Colors.white24),
+    return FlutterMap(
+      options: MapOptions(
+        initialCenter: const LatLng(19.0760, 72.8777),
+        initialZoom: 13.0,
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.driveguard.app',
+        ),
+        MarkerLayer(
+          markers: [
+            Marker(
+              point: const LatLng(19.0760, 72.8777),
+              width: 40,
+              height: 40,
+              child: const Icon(Icons.location_on, color: DriveGuardColors.brandPrimary, size: 40),
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 

@@ -7,7 +7,7 @@ import uuid
 
 # Assume these are provided elsewhere in the project
 from backend.api.dependencies import get_db, get_current_user
-from backend.geospatial.services import GeospatialQueryService
+from backend.geospatial.queries import GeospatialQueryService
 
 router = APIRouter(prefix="/enforcement", tags=["enforcement"])
 
