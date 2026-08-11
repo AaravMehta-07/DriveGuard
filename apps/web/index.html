@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DriveGuard — India's first navigation app built for traffic compliance. Speed cameras, enforcement intelligence, and turn restriction warnings for Mumbai drivers.">
+    <meta name="keywords" content="DriveGuard, Mumbai navigation, speed camera alerts, traffic compliance, challan prevention, road safety India">
+    <title>DriveGuard — Navigate Smarter, Drive Safer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-primary: #0066FF;
+            --brand-primary-dark: #0052CC;
+            --brand-accent: #00C48C;
+            --brand-accent-dark: #00A876;
+            --surface-dark: #0A0F1E;
+            --surface-card: #111827;
+            --surface-card-hover: #1A2332;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-tertiary: #64748B;
+            --verified-green: #10B981;
+            --warning-amber: #F59E0B;
+            --critical-red: #EF4444;
+            --gradient-hero: linear-gradient(135deg, #0A0F1E 0%, #0F172A 50%, #1E1B3A 100%);
+            --gradient-card: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.3);
+            --shadow-glow: 0 0 60px rgba(0,102,255,0.15);
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--surface-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── Navigation ─────────────────────────────────────────── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 15, 30, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-logo .shield {
+            width: 32px;
+            height: 32px;
+            background: var(--brand-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-cta {
+            padding: 10px 24px;
+            background: var(--brand-primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .nav-cta:hover {
+            background: var(--brand-primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* ─── Hero ───────────────────────────────────────────────── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 24px 80px;
+            background: var(--gradient-hero);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,102,255,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(0,102,255,0.12);
+            border: 1px solid rgba(0,102,255,0.25);
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--brand-primary);
+            margin-bottom: 32px;
+        }
+
+        .hero-badge .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--verified-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        h1 {
+            font-size: clamp(40px, 6vw, 72px);
+            font-weight: 800;
+            line-height: 1.08;
+            letter-spacing: -2px;
+            max-width: 800px;
+            margin-bottom: 24px;
+        }
+
+        h1 .highlight {
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(16px, 2vw, 20px);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 48px;
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 32px;
+            background: var(--brand-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--brand-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,102,255,0.3);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 32px;
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 48px;
+            margin-top: 64px;
+            padding-top: 48px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--brand-primary);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        /* ─── Features ───────────────────────────────────────────── */
+        .section {
+            padding: 120px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--brand-primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: clamp(28px, 4vw, 44px);
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .section-desc {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 64px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--gradient-card);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            background: var(--surface-card-hover);
+            border-color: rgba(255,255,255,0.12);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-card);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .feature-icon.blue { background: rgba(0,102,255,0.12); }
+        .feature-icon.green { background: rgba(16,185,129,0.12); }
+        .feature-icon.amber { background: rgba(245,158,11,0.12); }
+        .feature-icon.red { background: rgba(239,68,68,0.12); }
+        .feature-icon.purple { background: rgba(139,92,246,0.12); }
+        .feature-icon.cyan { background: rgba(6,182,212,0.12); }
+
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* ─── Safety Section ─────────────────────────────────────── */
+        .safety-section {
+            background: linear-gradient(135deg, rgba(16,185,129,0.04) 0%, rgba(0,102,255,0.04) 100%);
+            border: 1px solid rgba(16,185,129,0.1);
+            border-radius: var(--radius-xl);
+            padding: 64px;
+            margin-top: 80px;
+            text-align: center;
+        }
+
+        .safety-section .shield-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(16,185,129,0.12);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 24px;
+        }
+
+        .safety-section h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .safety-section p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* ─── Disclaimer ─────────────────────────────────────────── */
+        .disclaimer {
+            margin-top: 48px;
+            padding: 24px;
+            background: rgba(245,158,11,0.06);
+            border: 1px solid rgba(245,158,11,0.15);
+            border-radius: var(--radius-md);
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .disclaimer p {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            line-height: 1.7;
+        }
+
+        /* ─── Coverage ───────────────────────────────────────────── */
+        .coverage-card {
+            background: var(--surface-card);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: var(--radius-lg);
+            padding: 48px;
+            text-align: center;
+            margin-top: 64px;
+        }
+
+        .coverage-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .coverage-card p {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .coverage-badges {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .coverage-badge {
+            padding: 8px 20px;
+            background: rgba(0,102,255,0.08);
+            border: 1px solid rgba(0,102,255,0.2);
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* ─── Footer ─────────────────────────────────────────────── */
+        footer {
+            padding: 64px 24px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+
+        .footer-brand p {
+            font-size: 14px;
+            color: var(--text-tertiary);
+            margin-top: 12px;
+            max-width: 280px;
+        }
+
+        .footer-col h4 {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        .footer-col a {
+            display: block;
+            color: var(--text-tertiary);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+            transition: color 0.2s;
+        }
+
+        .footer-col a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-bottom {
+            padding-top: 32px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        /* ─── Responsive ─────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            nav { padding: 12px 16px; }
+            .nav-links { display: none; }
+            .hero { padding: 100px 16px 60px; }
+            .hero-stats { flex-direction: column; gap: 24px; }
+            .features-grid { grid-template-columns: 1fr; }
+            .safety-section { padding: 32px 20px; }
+            .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-logo">
+            <div class="shield">🛡</div>
+            DriveGuard
+        </div>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#safety">Safety</a></li>
+            <li><a href="#coverage">Coverage</a></li>
+            <li><a href="#privacy">Privacy</a></li>
+        </ul>
+        <button class="nav-cta" onclick="document.getElementById('download').scrollIntoView({behavior:'smooth'})">Get DriveGuard</button>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            Built for Mumbai roads
+        </div>
+        <h1>Navigate Smarter.<br><span class="highlight">Drive Safer.</span></h1>
+        <p class="hero-subtitle">
+            India's first navigation app built for traffic compliance. Know your speed limits, 
+            see enforcement cameras, and avoid accidental violations — all while navigating like Google Maps.
+        </p>
+        <div class="hero-actions" id="download">
+            <a href="#" class="btn-primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/><polygon points="12 15 17 21 7 21 12 15"/></svg>
+                Download for Android
+            </a>
+            <a href="#features" class="btn-secondary">
+                Learn More →
+            </a>
+        </div>
+        <div class="hero-stats">
+            <div class="stat">
+                <div class="stat-value">—</div>
+                <div class="stat-label">Verified Cameras</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">—</div>
+                <div class="stat-label">Speed Limit Zones</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">—</div>
+                <div class="stat-label">Signal Enforcement Points</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="features">
+        <div class="section-label">Features</div>
+        <h2 class="section-title">Everything you need to drive confidently</h2>
+        <p class="section-desc">
+            DriveGuard combines familiar turn-by-turn navigation with real-time compliance intelligence, 
+            so you can focus on driving while we watch for restrictions.
+        </p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon blue">📍</div>
+                <h3>Full Turn-by-Turn Navigation</h3>
+                <p>Search, route, and navigate just like Google Maps. Destination search, route alternatives, live traffic, rerouting — everything you expect.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon green">📷</div>
+                <h3>Enforcement Camera Map</h3>
+                <p>See verified speed cameras and signal enforcement points plotted on the map. Browse the enforcement explorer anytime, even without navigating.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon amber">⚡</div>
+                <h3>Speed Limit Awareness</h3>
+                <p>Always see your current speed and the applicable speed limit. Get warned when you're over — even when no camera is nearby.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon red">🚫</div>
+                <h3>Illegal Turn Prevention</h3>
+                <p>DriveGuard warns you before prohibited left turns, right turns, U-turns, and no-entry roads. Never get a challan for an innocent-looking turn.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon purple">🛡</div>
+                <h3>Copilot Mode</h3>
+                <p>Start DriveGuard without a destination. It follows your drive, showing speed limits, cameras, and restrictions in the background — even while using another map app.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon cyan">📊</div>
+                <h3>Route Intelligence</h3>
+                <p>Before you start, see how many cameras, signal enforcement points, and restrictions are on your route. Know what to expect before you drive.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="safety">
+        <div class="safety-section">
+            <div class="shield-icon">🛡</div>
+            <h2>Built for Safety, Not for Cheating</h2>
+            <p>
+                DriveGuard is <strong>not</strong> an app for defeating enforcement. We encourage you to follow 
+                road rules throughout your journey. Camera warnings supplement continuous speed-limit compliance. 
+                Our goal is to help you drive legally and confidently — not to help you speed between cameras.
+            </p>
+            <div class="disclaimer">
+                <p>
+                    DriveGuard provides navigation and road-compliance assistance using available data. 
+                    Road conditions and restrictions can change. Always follow posted traffic signs, signals, 
+                    and directions from authorities. DriveGuard does not guarantee freedom from challans.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="coverage">
+        <div class="section-label">Coverage</div>
+        <h2 class="section-title">Starting with Mumbai</h2>
+        <p class="section-desc">
+            DriveGuard launches with Mumbai coverage first, expanding to the wider Mumbai Metropolitan Region, 
+            Maharashtra, and across India.
+        </p>
+        <div class="coverage-card">
+            <h3>Mumbai, Maharashtra</h3>
+            <p>Verified enforcement data, speed limits, turn restrictions, and traffic signal intelligence</p>
+            <div class="coverage-badges">
+                <span class="coverage-badge">Speed Cameras</span>
+                <span class="coverage-badge">Red-Light Cameras</span>
+                <span class="coverage-badge">Turn Restrictions</span>
+                <span class="coverage-badge">Speed Limits</span>
+                <span class="coverage-badge">Traffic Signals</span>
+                <span class="coverage-badge">Temporary Orders</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="privacy">
+        <div class="section-label">Privacy</div>
+        <h2 class="section-title">Your driving data stays yours</h2>
+        <p class="section-desc">
+            Privacy by design. Guest mode works without an account. Your precise driving traces are never sold. 
+            Delete your data anytime.
+        </p>
+        <div class="features-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+            <div class="feature-card">
+                <h3>🔒 Encrypted</h3>
+                <p>TLS everywhere. Sensitive data encrypted at rest.</p>
+            </div>
+            <div class="feature-card">
+                <h3>👤 Guest Mode</h3>
+                <p>Navigate without creating an account.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🗑 Delete Anytime</h3>
+                <p>Delete your account and all data whenever you want.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📦 Export Data</h3>
+                <p>Export your personal data in a standard format.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="nav-logo">
+                    <div class="shield">🛡</div>
+                    DriveGuard
+                </div>
+                <p>India's first navigation app built for traffic compliance and enforcement awareness.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Product</h4>
+                <a href="#features">Features</a>
+                <a href="#coverage">Coverage</a>
+                <a href="#download">Download</a>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Data Sources</a>
+                <a href="#">Attributions</a>
+            </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <a href="#">Report Data Issue</a>
+                <a href="#">Feedback</a>
+                <a href="#">Support</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 DriveGuard. Navigation and compliance assistance.</span>
+            <span>Map data © respective providers. See attributions.</span>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Navbar background on scroll
+        const nav = document.querySelector('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.style.background = 'rgba(10, 15, 30, 0.95)';
+            } else {
+                nav.style.background = 'rgba(10, 15, 30, 0.85)';
+            }
+        });
+
+        // Animate stats when they come into view (placeholder for real data)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.feature-card, .stat').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

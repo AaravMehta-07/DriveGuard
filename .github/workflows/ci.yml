@@ -1,0 +1,163 @@
+name: DriveGuard CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # Job 1: Backend lint, type check, unit tests
+  backend-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+      - name: Format check (ruff)
+        run: ruff format --check backend/
+      - name: Lint (ruff)
+        run: ruff check backend/
+      - name: Type check (mypy)
+        run: mypy backend/ --ignore-missing-imports
+      - name: Unit tests
+        run: pytest tests/unit/ -v --tb=short
+
+  # Job 2: Backend integration tests (with PostGIS)
+  backend-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: driveguard
+          POSTGRES_PASSWORD: driveguard
+          POSTGRES_DB: driveguard_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+      - name: Run migrations
+        run: cd backend && alembic upgrade head
+        env:
+          DATABASE_URL: postgresql+asyncpg://driveguard:driveguard@localhost:5432/driveguard_test
+      - name: Integration tests
+        run: pytest tests/integration/ -v --tb=short
+        env:
+          DATABASE_URL: postgresql+asyncpg://driveguard:driveguard@localhost:5432/driveguard_test
+          REDIS_URL: redis://localhost:6379/0
+
+  # Job 3: PostGIS geospatial correctness tests
+  postgis-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: driveguard
+          POSTGRES_PASSWORD: driveguard
+          POSTGRES_DB: driveguard_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+      - name: Run PostGIS regression tests
+        run: pytest tests/integration/test_geospatial.py -v -k "geography or distance or buffer or corridor"
+        env:
+          DATABASE_URL: postgresql+asyncpg://driveguard:driveguard@localhost:5432/driveguard_test
+
+  # Job 4: Admin dashboard
+  admin-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: cd apps/admin && npm ci
+        continue-on-error: true  # Admin may not be set up yet
+      - name: Lint
+        run: cd apps/admin && npm run lint
+        continue-on-error: true
+      - name: Type check
+        run: cd apps/admin && npm run type-check
+        continue-on-error: true
+      - name: Build
+        run: cd apps/admin && npm run build
+        continue-on-error: true
+
+  # Job 5: Flutter mobile app
+  mobile-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+      - name: Get dependencies
+        run: cd apps/mobile && flutter pub get
+        continue-on-error: true
+      - name: Analyze
+        run: cd apps/mobile && flutter analyze
+        continue-on-error: true
+      - name: Test
+        run: cd apps/mobile && flutter test
+        continue-on-error: true
+
+  # Job 6: Security scans
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Secret scanning
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --only-verified
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Python dependency audit
+        run: pip install pip-audit && pip-audit -r backend/requirements.txt
+        continue-on-error: true
+
+  # Job 7: Docker build
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build backend image
+        run: docker build -t driveguard-backend:ci -f backend/Dockerfile backend/

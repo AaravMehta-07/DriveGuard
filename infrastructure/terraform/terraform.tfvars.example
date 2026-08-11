@@ -1,0 +1,9 @@
+# Example Terraform variables
+aws_region        = "ap-south-1"
+environment       = "prod"
+db_instance_class = "db.t4g.medium"
+redis_node_type   = "cache.t4g.micro"
+
+# DO NOT COMMIT SECRETS TO VERSION CONTROL
+# db_username and db_password should be passed via CI/CD pipelines or TF_VAR_ environment variables
+# db_username = "driveguard_admin"
