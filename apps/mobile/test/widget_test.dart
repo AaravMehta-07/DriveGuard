@@ -16,7 +16,7 @@ void main() {
     );
 
     expect(find.byType(HomeScreen), findsOneWidget);
-    expect(find.text('DriveGuard'), findsOneWidget);
+    expect(find.text('Where to?'), findsOneWidget);
   });
 
   testWidgets('Copilot Screen renders active status pill and stop button', (WidgetTester tester) async {
