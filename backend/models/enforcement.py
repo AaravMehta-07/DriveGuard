@@ -1,7 +1,9 @@
-from sqlalchemy import Column, String, ForeignKey, Float, Integer
-from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
-from .base import Base, UUIDMixin, TimestampMixin, SyntheticMixin
+from sqlalchemy import Column, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
+
+from .base import Base, SyntheticMixin, TimestampMixin, UUIDMixin
+
 
 class EnforcementPoint(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     __tablename__ = 'enforcement_points'
@@ -10,7 +12,7 @@ class EnforcementPoint(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     """
     geom = Column(Geometry('POINT', srid=4326), nullable=False, index=True)
     point_type = Column(String, nullable=False) # e.g., speed_camera, red_light_camera
-    
+
     # road_level fields per correction #23
     road_level = Column(Integer, nullable=True)
     level_confidence = Column(Float, nullable=True)
@@ -34,5 +36,5 @@ class EnforcementObservation(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     point_id = Column(ForeignKey('enforcement_points.id'), nullable=False, index=True)
     observed_status = Column(String, nullable=False) # e.g., active, removed
     confidence = Column(Float, default=1.0)
-    
+
     point = relationship("EnforcementPoint", back_populates="observations")

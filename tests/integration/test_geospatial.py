@@ -9,8 +9,9 @@ These tests explicitly prove:
 - Latitude does not incorrectly affect distance
 """
 
-import pytest
 import math
+
+import pytest
 
 pytestmark = pytest.mark.asyncio
 

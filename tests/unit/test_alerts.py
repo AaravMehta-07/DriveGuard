@@ -1,6 +1,7 @@
 """Tests for alert arbitration."""
 from packages.domain_models.alerts import AlertSeverity
 
+
 def arbitrate_alerts(alerts):
     if not alerts:
         return None
@@ -21,14 +22,14 @@ def test_cooldown_and_suppression():
     class Arbiter:
         def __init__(self):
             self.history = {}
-        
+
         def should_alert(self, alert_id, time_sec):
             if alert_id in self.history:
                 if time_sec - self.history[alert_id] < 60:
                     return False
             self.history[alert_id] = time_sec
             return True
-            
+
     arbiter = Arbiter()
     assert arbiter.should_alert("cam_1", 0) is True
     assert arbiter.should_alert("cam_1", 30) is False

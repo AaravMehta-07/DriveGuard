@@ -1,6 +1,7 @@
 """Vehicle models."""
 from enum import Enum
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 from pydantic import BaseModel, Field
 
 

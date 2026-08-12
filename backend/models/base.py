@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, DateTime, Boolean
+
+from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 

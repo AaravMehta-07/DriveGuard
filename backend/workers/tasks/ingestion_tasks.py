@@ -1,6 +1,7 @@
-from celery import shared_task
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
+
+from celery import shared_task
 
 logger = logging.getLogger(__name__)
 

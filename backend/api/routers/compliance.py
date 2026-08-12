@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, status
-from pydantic import BaseModel
-from typing import List, Optional
 from datetime import datetime
+from typing import List, Optional
 from zoneinfo import ZoneInfo
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.dependencies import get_db
@@ -55,10 +56,10 @@ async def get_speed_limit(
         vehicle_class=vehicle_class,
         road_level=road_level
     )
-    
+
     if speed_limit is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Speed limit unknown at this location")
-        
+
     return SpeedLimitResponse(
         speed_limit_kph=speed_limit,
         is_known=True
@@ -76,9 +77,9 @@ async def get_restrictions(
     """
     service = GeospatialQueryService(db)
     engine = ComplianceEngine(service)
-    
+
     restrictions_data = await engine.evaluate_restrictions(point_lon=lon, point_lat=lat, radius_m=radius_m)
-    
+
     return [
         RestrictionResponse(
             restriction_id=str(r.get("id", "")),
@@ -123,7 +124,7 @@ async def get_temporal(
     service = GeospatialQueryService(db)
     engine = ComplianceEngine(service)
     local_tz = ZoneInfo('Asia/Kolkata')
-    
+
     if eval_time:
         if eval_time.tzinfo is None:
             eval_time = eval_time.replace(tzinfo=local_tz)
@@ -131,9 +132,9 @@ async def get_temporal(
             eval_time = eval_time.astimezone(local_tz)
     else:
         eval_time = datetime.now(local_tz)
-        
+
     restrictions_data = await engine.get_temporal_restrictions(road_segment_id=segment_id, dt=eval_time)
-    
+
     return TemporalResponse(
         active_restrictions=[
             RestrictionResponse(

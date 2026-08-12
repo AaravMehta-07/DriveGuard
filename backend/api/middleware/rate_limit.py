@@ -1,7 +1,9 @@
-import time
 import logging
+import time
+
 from fastapi import Request, Response, status
 from starlette.middleware.base import BaseHTTPMiddleware
+
 from backend.api.dependencies import get_redis_client
 
 logger = logging.getLogger(__name__)

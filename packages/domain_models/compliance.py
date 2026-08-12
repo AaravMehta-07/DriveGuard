@@ -1,8 +1,9 @@
 """Compliance and rules models."""
+from datetime import date, datetime, time
 from enum import Enum
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel, Field
-from datetime import datetime, date, time
 
 
 class RuleType(str, Enum):

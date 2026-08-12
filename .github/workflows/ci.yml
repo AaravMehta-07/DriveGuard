@@ -28,7 +28,7 @@ jobs:
       - name: Lint & Format check (ruff)
         run: |
           pip install ruff
-          ruff check backend/ packages/ tests/
+          ruff check backend packages tests
         env:
           PYTHONPATH: ${{ github.workspace }}
       - name: Unit & Provider Contract Tests

@@ -1,10 +1,11 @@
 """Trace Generator for Synthetic City."""
-from typing import List, Dict, Any
 from datetime import datetime, timedelta
+from typing import Any, Dict, List
+
 
 class TraceGenerator:
     """Generates GPS traces for testing various scenarios."""
-    
+
     def _create_sample(self, lat, lon, speed, heading, time_offset_sec) -> Dict[str, Any]:
         base_time = datetime(2026, 1, 1, 10, 0, 0)
         ts = base_time + timedelta(seconds=time_offset_sec)
@@ -49,7 +50,7 @@ class TraceGenerator:
             sample["altitude"] = 900 # Elevated
             trace.append(sample)
         return trace
-        
+
     def generate_restricted_turn(self) -> List[Dict[str, Any]]:
         """Trace approaching no-left junction."""
         return [self._create_sample(12.974, 77.595, 30, 90, i) for i in range(10)]

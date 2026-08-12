@@ -1,5 +1,6 @@
 from .pipeline import IngestionPipeline
 
+
 class NoticeIngestionPipeline(IngestionPipeline):
     """
     Ingestion pipeline for official notices and advisories.
@@ -21,26 +22,26 @@ class NoticeIngestionPipeline(IngestionPipeline):
         self.hash_document(notice_data.get("content", ""))
         if await self.check_idempotency(notice_data.get("id"), notice_data.get("content", "")):
             return # Already processed
-            
+
         # Detect state (new, updated, cancelled, expired)
         state = self.detect_notice_state(notice_data)
-        
+
         if state == "expired":
             await self.handle_expired_notice(notice_data)
             return
-            
+
         # Extract and geocode
         extracted = await self.llm_extraction(notice_data.get("content", ""))
         geocoded = await self.geocode_entities(extracted)
         matched = await self.match_road_graph(geocoded)
-        
+
         confidence = self.calculate_confidence(matched)
-        
+
         if confidence >= 0.9:
             await self.publish_notice(matched)
         else:
             await self.queue_for_review(matched)
-            
+
         await self.log_audit("notice", notice_data.get("id"), "processed", after=matched)
 
     def detect_notice_state(self, notice_data: dict) -> str:

@@ -1,11 +1,11 @@
-from typing import List, Optional
 from datetime import datetime
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.api.dependencies import get_db, get_current_user
+from backend.api.dependencies import get_current_user, get_db
 
 router = APIRouter(prefix="/users", tags=["users"])
 

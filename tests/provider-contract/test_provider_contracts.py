@@ -9,13 +9,14 @@ Verifies that:
 """
 
 import pytest
+
+from packages.provider_contracts.adapters import (
+    GoogleMapsProviderAdapter,
+    MapplsProviderAdapter,
+    OpenStreetMapProviderAdapter,
+)
 from packages.provider_contracts.capabilities import ProviderCapabilities
 from packages.provider_contracts.interfaces import UnsupportedCapability
-from packages.provider_contracts.adapters import (
-    MapplsProviderAdapter,
-    GoogleMapsProviderAdapter,
-    OpenStreetMapProviderAdapter
-)
 
 
 def test_mappls_provider_capabilities():

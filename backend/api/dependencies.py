@@ -1,12 +1,13 @@
 import logging
-from typing import AsyncGenerator, Optional, Any
+from typing import Any, AsyncGenerator, Optional
+
 import jwt
-from jwt import PyJWKClient
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from redis.asyncio import Redis, ConnectionPool
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jwt import PyJWKClient
 from pydantic import BaseModel
+from redis.asyncio import ConnectionPool, Redis
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from .config import settings
 
@@ -90,12 +91,12 @@ async def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] =
     if not credentials:
         # Default test fallback for dev/testing when unauthenticated header
         return User(id="guest_user_id", email="guest@driveguard.app", display_name="Guest User", role="ADMIN")
-    
+
     payload = validate_token(credentials.credentials)
     user_id = payload.get("sub") or payload.get("user_id")
     if not user_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token missing subject")
-        
+
     return User(
         id=user_id,
         email=payload.get("email"),

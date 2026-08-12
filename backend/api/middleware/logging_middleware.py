@@ -1,4 +1,5 @@
 import time
+
 import structlog
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
@@ -11,7 +12,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         start_time = time.time()
         response: Response = await call_next(request)
         process_time = time.time() - start_time
-        
+
         logger.info(
             "request_completed",
             method=request.method,

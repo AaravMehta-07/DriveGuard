@@ -1,12 +1,12 @@
-from typing import List
 from datetime import datetime
+from typing import List
 
-from fastapi import APIRouter, Depends, UploadFile, File
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, File, UploadFile
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.api.dependencies import get_db, get_current_user
 from backend.ai.challan_extractor import ChallanExtractor
+from backend.api.dependencies import get_current_user, get_db
 
 router = APIRouter(prefix="/challan", tags=["challan"])
 
@@ -40,7 +40,7 @@ async def upload_challan(
     """
     content = await file.read()
     extractor = ChallanExtractor()
-    
+
     if file.filename and file.filename.endswith('.pdf'):
         extracted = await extractor.extract_from_pdf(content)
     else:

@@ -1,6 +1,8 @@
-from sqlalchemy import Column, String, ForeignKey, DateTime
 from geoalchemy2 import Geometry
-from .base import Base, UUIDMixin, TimestampMixin, SyntheticMixin
+from sqlalchemy import Column, DateTime, ForeignKey, String
+
+from .base import Base, SyntheticMixin, TimestampMixin, UUIDMixin
+
 
 class TurnRestriction(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     __tablename__ = 'turn_restrictions'

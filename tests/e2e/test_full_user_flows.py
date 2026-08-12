@@ -5,13 +5,14 @@ Exercises real FastAPI app endpoints, routers, compliance engine, and geospatial
 Uses dependency overrides for fast, deterministic, database-decoupled E2E test execution.
 """
 
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
 import pytest_asyncio
-from unittest.mock import AsyncMock, MagicMock
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
+from backend.api.dependencies import User, get_current_user, get_db, get_redis
 from backend.api.main import app
-from backend.api.dependencies import get_db, get_redis, User, get_current_user
 
 
 async def override_get_db():
@@ -38,11 +39,11 @@ async def async_client():
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_redis] = override_get_redis
     app.dependency_overrides[get_current_user] = override_get_current_user
-    
+
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
-        
+
     app.dependency_overrides.clear()
 
 

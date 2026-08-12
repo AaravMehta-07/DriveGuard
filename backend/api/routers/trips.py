@@ -1,11 +1,12 @@
+import uuid
+from datetime import datetime
+from typing import Optional
+
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from typing import Optional
-from datetime import datetime
-import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.api.dependencies import get_db, get_current_user
+from backend.api.dependencies import get_current_user, get_db
 
 router = APIRouter(prefix="/trips", tags=["trips"])
 

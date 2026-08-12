@@ -1,7 +1,9 @@
-from sqlalchemy import Column, String, Float, ForeignKey, JSON
-from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
-from .base import Base, UUIDMixin, TimestampMixin, SyntheticMixin
+from sqlalchemy import JSON, Column, Float, ForeignKey, String
+from sqlalchemy.orm import relationship
+
+from .base import Base, SyntheticMixin, TimestampMixin, UUIDMixin
+
 
 class NavigationSession(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     __tablename__ = 'navigation_sessions'

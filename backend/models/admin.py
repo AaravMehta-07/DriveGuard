@@ -1,7 +1,10 @@
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, ForeignKey, JSON, DateTime
+
+from sqlalchemy import JSON, Column, DateTime, ForeignKey, String
 from sqlalchemy.orm import relationship
-from .base import Base, UUIDMixin, TimestampMixin, SyntheticMixin
+
+from .base import Base, SyntheticMixin, TimestampMixin, UUIDMixin
+
 
 class ReviewQueue(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     __tablename__ = 'review_queues'
@@ -11,7 +14,7 @@ class ReviewQueue(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     entity_type = Column(String, nullable=False)
     entity_id = Column(String, nullable=False) # UUID stored as string to refer to multiple tables
     status = Column(String, nullable=False, default='pending')
-    
+
     decisions = relationship("AdminDecision", back_populates="review")
 
 class AdminDecision(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
@@ -23,7 +26,7 @@ class AdminDecision(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     admin_id = Column(ForeignKey('users.id'), nullable=False)
     decision = Column(String, nullable=False) # e.g., 'approved', 'rejected'
     notes = Column(String, nullable=True)
-    
+
     review = relationship("ReviewQueue", back_populates="decisions")
 
 class AuditLog(Base, UUIDMixin):

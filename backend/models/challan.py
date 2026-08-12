@@ -1,6 +1,8 @@
-from sqlalchemy import Column, String, ForeignKey, JSON
+from sqlalchemy import JSON, Column, ForeignKey, String
 from sqlalchemy.orm import relationship
-from .base import Base, UUIDMixin, TimestampMixin, SyntheticMixin
+
+from .base import Base, SyntheticMixin, TimestampMixin, UUIDMixin
+
 
 class ChallanUpload(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     __tablename__ = 'challan_uploads'
@@ -11,7 +13,7 @@ class ChallanUpload(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     vehicle_id = Column(ForeignKey('vehicles.id'), nullable=True, index=True)
     status = Column(String, nullable=False, default='processing')
     parsed_data = Column(JSON, nullable=True)
-    
+
     events = relationship("ChallanEvent", back_populates="upload")
 
 class ChallanEvent(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
@@ -22,5 +24,5 @@ class ChallanEvent(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     upload_id = Column(ForeignKey('challan_uploads.id'), nullable=False, index=True)
     violation_type = Column(String, nullable=False)
     penalty_amount = Column(String, nullable=True)
-    
+
     upload = relationship("ChallanUpload", back_populates="events")

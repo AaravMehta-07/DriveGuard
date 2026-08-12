@@ -1,10 +1,18 @@
 """Synthetic City Generator."""
 import random
-from typing import Dict, Any
 from datetime import datetime
+from typing import Any, Dict
 
-from packages.domain_models.enforcement import EnforcementPoint, EnforcementType, VerificationStatus, ActiveStatus, FixedOrMobile, StructureType, Carriageway
 from packages.domain_models.compliance import ComplianceRule, RuleType, TemporalRule
+from packages.domain_models.enforcement import (
+    ActiveStatus,
+    Carriageway,
+    EnforcementPoint,
+    EnforcementType,
+    FixedOrMobile,
+    StructureType,
+    VerificationStatus,
+)
 from packages.domain_models.signals import TrafficSignalJunction
 
 

@@ -2,8 +2,10 @@
 Report Processor for handling community reports.
 """
 
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel
+
 
 class ProcessingResult(BaseModel):
     report_id: str
@@ -17,20 +19,20 @@ class ReportProcessor:
     """
     Processes incoming reports, handles deduplication, and initial confidence scoring.
     """
-    
+
     async def process_report(self, report: Dict[str, Any], existing_reports: List[Dict[str, Any]], reporter_trust: float, is_first_report: bool) -> ProcessingResult:
         """
         Process a new report, deduplicate, calculate confidence, and queue for review if necessary.
         """
         report_id = report.get("id", "new_report")
         report_type = report.get("type")
-        
+
         # Deduplication check: existing reports within 100m, same type, within 48 hours
         for ext in existing_reports:
             if (ext.get("distance_m", float('inf')) <= 100.0 and
                 ext.get("type") == report_type and
                 ext.get("age_hours", 99) <= 48):
-                
+
                 # Merge if duplicate
                 return ProcessingResult(
                     report_id=report_id,
@@ -39,12 +41,12 @@ class ReportProcessor:
                     queued_for_review=False,
                     merged_with_id=ext.get("id")
                 )
-                
+
         initial_confidence = reporter_trust * 0.5
-        
+
         queued = False
         reason = None
-        
+
         if reporter_trust < 0.3:
             queued = True
             reason = "Low trust score"
@@ -57,7 +59,7 @@ class ReportProcessor:
         elif report.get("contradicts_verified", False):
             queued = True
             reason = "Contradicts verified data"
-            
+
         return ProcessingResult(
             report_id=report_id,
             status="QUEUED" if queued else "ACCEPTED",

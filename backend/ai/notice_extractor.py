@@ -2,8 +2,10 @@
 Notice Extractor for parsing authoritative traffic notices.
 """
 
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
+
 from pydantic import BaseModel
+
 
 class NoticeExtractionResult(BaseModel):
     notice_number: str
@@ -29,14 +31,14 @@ class NoticeExtractor:
     """
     Extracts structured schema from official traffic notices. Output is candidate only.
     """
-    
+
     async def extract_from_document(self, text: str, source_url: str) -> NoticeExtractionResult:
         """
         Extracts structured schema from document text.
         LLM output is CANDIDATE only - never becomes production data without validation.
         Schema validation rejects nonsensical output.
         """
-        
+
         # Simulated LLM extraction logic
         return NoticeExtractionResult(
             notice_number="TRF-2026-001",

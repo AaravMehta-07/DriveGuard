@@ -1,10 +1,11 @@
+from typing import List, Optional
+
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
-from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.dependencies import get_db
-from backend.geospatial.queries import GeospatialQueryService, BoundingBox
+from backend.geospatial.queries import BoundingBox, GeospatialQueryService
 
 router = APIRouter(prefix="/enforcement", tags=["enforcement"])
 
@@ -38,14 +39,14 @@ async def get_viewport_enforcements(
     Constructs BoundingBox object and passes correctly typed parameters.
     """
     service = GeospatialQueryService(db)
-    
+
     bbox = BoundingBox(
         min_lon=req.min_lon,
         min_lat=req.min_lat,
         max_lon=req.max_lon,
         max_lat=req.max_lat
     )
-    
+
     area = (req.max_lat - req.min_lat) * (req.max_lon - req.min_lon)
     use_clustering = area > 0.1
 
@@ -66,14 +67,14 @@ async def get_viewport_enforcements(
     else:
         enforcement_types = [camera_type] if camera_type else None
         verification_statuses = [verification_status] if verification_status else None
-        
+
         results = await service.get_enforcement_in_bounds(
             bbox=bbox,
             enforcement_types=enforcement_types,
             verification_statuses=verification_statuses,
             min_confidence=min_confidence
         )
-        
+
         return [
             EnforcementPointResponse(
                 id=str(r.id),

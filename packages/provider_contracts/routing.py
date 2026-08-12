@@ -1,7 +1,8 @@
 """Routing contracts."""
-from enum import Enum
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional
+from enum import Enum
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -31,12 +32,12 @@ class RouteComplianceGateResult(BaseModel):
 
 class ComplianceAwareRoutingCoordinator(ABC):
     """Interface for a coordinator that ensures routes comply with domain rules."""
-    
+
     @abstractmethod
     def evaluate_route_candidates(self, candidates: List[RouteCandidate]) -> List[RouteComplianceGateResult]:
         """Evaluate a list of route candidates for compliance."""
         pass
-    
+
     @abstractmethod
     def get_compliant_route(self, origin: Any, destination: Any, waypoints: Optional[List[Any]] = None) -> RouteCandidate:
         """Calculate and return a fully compliant route."""

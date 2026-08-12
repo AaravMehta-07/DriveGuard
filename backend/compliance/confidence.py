@@ -16,11 +16,11 @@ class SourceConfidenceEngine:
         self.compliance_policy_version = compliance_policy_version
 
     def calculate_confidence(
-        self, 
-        sources: List[str], 
-        verification_count: int, 
-        contradiction_count: int, 
-        last_verified_days_ago: int, 
+        self,
+        sources: List[str],
+        verification_count: int,
+        contradiction_count: int,
+        last_verified_days_ago: int,
         directional_accuracy: float
     ) -> float:
         """
@@ -30,22 +30,22 @@ class SourceConfidenceEngine:
             return 0.0
 
         base_score = max([SOURCE_WEIGHTS.get(src, 0.1) for src in sources])
-        
+
         # Cross-source consistency bonus
         if len(set(sources)) >= 2:
             base_score += 0.1
-            
+
         # Freshness decay
         if last_verified_days_ago > 180:
             decay_factor = min(1.0, (last_verified_days_ago - 180) * 0.001)
             base_score -= decay_factor
-            
+
         # Contradiction penalty
         base_score -= contradiction_count * 0.15
-        
+
         # Geographic accuracy component
         base_score = base_score * (0.8 + 0.2 * directional_accuracy)
-        
+
         return max(0.0, min(1.0, base_score))
 
     def get_status(self, confidence: float) -> str:

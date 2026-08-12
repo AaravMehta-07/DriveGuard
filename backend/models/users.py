@@ -1,6 +1,8 @@
-from sqlalchemy import Column, String, ForeignKey, JSON
+from sqlalchemy import JSON, Column, ForeignKey, String
 from sqlalchemy.orm import relationship
-from .base import Base, UUIDMixin, TimestampMixin, SyntheticMixin
+
+from .base import Base, SyntheticMixin, TimestampMixin, UUIDMixin
+
 
 class User(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     __tablename__ = 'users'
@@ -10,7 +12,7 @@ class User(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
-    
+
     preferences = relationship("UserPreferences", back_populates="user", uselist=False)
     vehicles = relationship("Vehicle", back_populates="user")
 
@@ -21,7 +23,7 @@ class UserPreferences(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     """
     user_id = Column(ForeignKey('users.id'), unique=True, nullable=False)
     preferences = Column(JSON, default={}, nullable=False)
-    
+
     user = relationship("User", back_populates="preferences")
 
 class Vehicle(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
@@ -32,5 +34,5 @@ class Vehicle(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     user_id = Column(ForeignKey('users.id'), nullable=False)
     license_plate = Column(String, nullable=True)
     vehicle_type = Column(String, nullable=False) # e.g., 'car', 'bike', 'truck'
-    
+
     user = relationship("User", back_populates="vehicles")

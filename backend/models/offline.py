@@ -1,6 +1,8 @@
-from sqlalchemy import Column, String, Integer
 from geoalchemy2 import Geometry
-from .base import Base, UUIDMixin, TimestampMixin, SyntheticMixin
+from sqlalchemy import Column, Integer, String
+
+from .base import Base, SyntheticMixin, TimestampMixin, UUIDMixin
+
 
 class OfflinePackVersion(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     __tablename__ = 'offline_pack_versions'

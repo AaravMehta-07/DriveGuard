@@ -1,6 +1,8 @@
 """Tests for confidence scoring."""
 import pytest
+
 from backend.compliance.confidence import SourceConfidenceEngine
+
 
 def test_single_official():
     engine = SourceConfidenceEngine()

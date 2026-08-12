@@ -1,12 +1,13 @@
 import abc
+import asyncio
 import hashlib
 import logging
-import asyncio
 from datetime import datetime, timezone
 from typing import Any
-from sqlalchemy.ext.asyncio import AsyncSession
-from models.ingestion import IngestionRun
+
 from models.admin import AuditLog
+from models.ingestion import IngestionRun
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 
@@ -15,13 +16,13 @@ class IngestionPipeline(abc.ABC):
     Base class for DriveGuard data ingestion pipelines.
     Guarantees idempotency, auditability, source-linking, and versioning.
     """
-    
+
     def __init__(self, db: AsyncSession, source_id: str, job_name: str, max_retries: int = 3):
         self.db = db
         self.source_id = source_id
         self.job_name = job_name
         self.max_retries = max_retries
-        
+
     async def create_job_run(self) -> IngestionRun:
         # Simplified: Ensure job exists, then create run
         run = IngestionRun(
@@ -55,11 +56,11 @@ class IngestionPipeline(abc.ABC):
         # Implementation left out for brevity; queries SourceDocument and SourceDocumentVersion
         # returns True if a matching version hash exists.
         return False
-        
+
     async def run(self, data: Any):
         run = await self.create_job_run()
         attempt = 0
-        
+
         while attempt < self.max_retries:
             try:
                 await self.process(data)

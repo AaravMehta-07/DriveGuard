@@ -1,11 +1,13 @@
 import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from .config import settings
-from .routers import health, auth, enforcement, compliance, community, trips, offline, admin, users, challan
-from .middleware.request_id import RequestIdMiddleware
 from .middleware.logging_middleware import LoggingMiddleware
 from .middleware.rate_limit import RateLimitMiddleware
+from .middleware.request_id import RequestIdMiddleware
+from .routers import admin, auth, challan, community, compliance, enforcement, health, offline, trips, users
 
 logger = logging.getLogger(__name__)
 

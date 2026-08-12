@@ -6,9 +6,11 @@ Enforces truthful offline capabilities per Correction #21.
 """
 
 from typing import List, Optional
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from backend.api.dependencies import get_db
 
 router = APIRouter(prefix="/offline", tags=["offline"])

@@ -1,9 +1,10 @@
 """GPS Replay Engine for testing."""
-import json
 import asyncio
-from typing import List, AsyncGenerator, Dict, Any
-from datetime import datetime, timedelta
+import json
 import random
+from datetime import datetime, timedelta
+from typing import Any, AsyncGenerator, Dict, List
+
 from packages.domain_models.location import RawLocationSample
 
 
@@ -97,7 +98,7 @@ class GPSReplayEngine:
                 # Skip sample due to dropout
                 self.current_index += 1
                 continue
-            
+
             dropout_end_time = None # Dropout over
 
             if last_timestamp:
@@ -107,7 +108,7 @@ class GPSReplayEngine:
                     await asyncio.sleep(sleep_time)
 
             noisy_dict = self._apply_noise(sample_dict)
-            
+
             sample = RawLocationSample(
                 latitude=noisy_dict["latitude"],
                 longitude=noisy_dict["longitude"],
@@ -118,8 +119,8 @@ class GPSReplayEngine:
                 timestamp=current_timestamp,
                 provider="replay_engine"
             )
-            
+
             yield sample
-            
+
             last_timestamp = current_timestamp
             self.current_index += 1

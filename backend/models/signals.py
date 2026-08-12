@@ -1,7 +1,9 @@
-from sqlalchemy import Column, String, ForeignKey
-from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
-from .base import Base, UUIDMixin, TimestampMixin, SyntheticMixin
+from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy.orm import relationship
+
+from .base import Base, SyntheticMixin, TimestampMixin, UUIDMixin
+
 
 class TrafficSignalJunction(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     __tablename__ = 'traffic_signal_junctions'
@@ -9,7 +11,7 @@ class TrafficSignalJunction(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     A junction controlled by traffic signals.
     """
     geom = Column(Geometry('POINT', srid=4326), nullable=False, index=True)
-    
+
     approaches = relationship("SignalApproach", back_populates="junction")
 
 class SignalApproach(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
@@ -19,7 +21,7 @@ class SignalApproach(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     """
     junction_id = Column(ForeignKey('traffic_signal_junctions.id'), nullable=False, index=True)
     geom = Column(Geometry('LINESTRING', srid=4326), nullable=False)
-    
+
     junction = relationship("TrafficSignalJunction", back_populates="approaches")
 
 class SignalStopLine(Base, UUIDMixin, TimestampMixin, SyntheticMixin):

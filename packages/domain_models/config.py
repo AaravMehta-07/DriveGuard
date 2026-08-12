@@ -1,7 +1,8 @@
 """Config models."""
-from typing import Dict, Any
-from pydantic import BaseModel
 from datetime import datetime
+from typing import Any, Dict
+
+from pydantic import BaseModel
 
 
 class MapMatchPolicyVersion(BaseModel):

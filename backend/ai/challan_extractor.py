@@ -3,7 +3,9 @@ AI Extractor for Challan documents with privacy enforcement.
 """
 
 from typing import Optional
+
 from pydantic import BaseModel
+
 
 class ChallanExtractionResult(BaseModel):
     offence_type: str
@@ -19,14 +21,14 @@ class ChallanExtractor:
     """
     Extracts structured data from challan images or PDFs using LLM, with strict privacy redaction.
     """
-    
+
     async def extract_from_image(self, image_bytes: bytes, mime_type: str) -> ChallanExtractionResult:
         """
         Extract aggregated challan data from an image.
         """
         # Privacy pipeline MUST redact owner name, address, registration number, PII
         # Returns only anonymized aggregate data
-        
+
         # Simulating LLM call...
         return ChallanExtractionResult(
             offence_type="SPEEDING",
@@ -44,7 +46,7 @@ class ChallanExtractor:
         Extract aggregated challan data from a PDF document.
         """
         # Similar to image extraction, ensures strict PII redaction
-        
+
         # Simulating fallback mechanism if LLM unavailable
         return ChallanExtractionResult(
             offence_type="UNKNOWN",

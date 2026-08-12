@@ -12,9 +12,10 @@ IMPORTANT PostGIS Rules for DriveGuard V3:
 """
 
 from typing import Sequence, Union
-from alembic import op
-import sqlalchemy as sa
+
 import geoalchemy2
+import sqlalchemy as sa
+from alembic import op
 
 revision: str = '001'
 down_revision: Union[str, None] = None

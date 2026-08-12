@@ -1,9 +1,11 @@
 import logging
 from datetime import datetime
-from typing import List, Any, Dict
+from typing import Any, Dict, List
+
 from sqlalchemy import text
-from .temporal import TemporalRuleEngine
+
 from .confidence import SourceConfidenceEngine
+from .temporal import TemporalRuleEngine
 
 logger = logging.getLogger(__name__)
 
@@ -29,14 +31,14 @@ class ComplianceEngine:
         """
         if not self.geo_service:
             return RouteComplianceScan([], 0.0)
-            
+
         try:
             data = await self.geo_service.scan_route_compliance(route_geometry_wkt, vehicle_type)
             events = []
             events.extend(data.get("enforcement_events", []))
             events.extend(data.get("restriction_events", []))
             events.extend(data.get("signal_events", []))
-            
+
             events.sort(key=lambda e: e.get("along_route_distance_m", 0) if isinstance(e, dict) else getattr(e, "along_route_distance_m", 0))
             confidence = data.get("compliance_data_coverage_percent", 0.0)
             return RouteComplianceScan(events, confidence)
@@ -70,7 +72,7 @@ class ComplianceEngine:
                         continue
                 if r.get("restriction_type") in ("NO_LEFT_TURN", "NO_RIGHT_TURN", "NO_U_TURN", "NO_ENTRY", "ONE_WAY", "ROAD_CLOSED"):
                     return ManeuverValidationResult(status="PROHIBITED", reason=f"Matched {r['restriction_type']}")
-            
+
             return ManeuverValidationResult(status="ALLOWED", reason="No active restriction enforced at this time")
         except Exception:
             logger.error("Database query error during maneuver validation", exc_info=True)

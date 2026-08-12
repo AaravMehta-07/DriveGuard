@@ -1,7 +1,9 @@
-from sqlalchemy import Column, String, Float, ForeignKey, Integer
-from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
-from .base import Base, UUIDMixin, TimestampMixin, SyntheticMixin
+from sqlalchemy import Column, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
+
+from .base import Base, SyntheticMixin, TimestampMixin, UUIDMixin
+
 
 class RoadSegment(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     __tablename__ = 'road_segments'
@@ -11,7 +13,7 @@ class RoadSegment(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     geom = Column(Geometry('LINESTRING', srid=4326), nullable=False, index=True)
     name = Column(String, nullable=True)
     highway_type = Column(String, nullable=True) # e.g., motorway, primary, residential
-    
+
     levels = relationship("RoadSegmentLevel", back_populates="segment")
 
 class RoadSegmentLevel(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
@@ -21,7 +23,7 @@ class RoadSegmentLevel(Base, UUIDMixin, TimestampMixin, SyntheticMixin):
     """
     segment_id = Column(ForeignKey('road_segments.id'), nullable=False, index=True)
     level = Column(Integer, nullable=False, default=0) # 0=surface, 1=bridge, -1=tunnel
-    
+
     segment = relationship("RoadSegment", back_populates="levels")
 
 class SpeedLimit(Base, UUIDMixin, TimestampMixin, SyntheticMixin):

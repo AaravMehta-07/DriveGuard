@@ -1,12 +1,13 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from models.sources import DataSource
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 
 class SourceRegistry:
     """
     Registry for populating and managing legitimate data sources in the data_sources table.
     """
-    
+
     SOURCES = [
         {
             "name": "mumbai_traffic_police",
@@ -99,7 +100,7 @@ class SourceRegistry:
             stmt = select(DataSource).where(DataSource.name == source_data["name"])
             result = await self.db.execute(stmt)
             existing = result.scalar_one_or_none()
-            
+
             if not existing:
                 new_source = DataSource(
                     name=source_data["name"],
@@ -113,5 +114,5 @@ class SourceRegistry:
                     cross_provider_display_allowed=source_data["cross_provider_display_allowed"]
                 )
                 self.db.add(new_source)
-                
+
         await self.db.commit()

@@ -7,8 +7,9 @@ with simulated GPS trajectory sequences covering edge cases.
 
 import datetime
 from zoneinfo import ZoneInfo
-from packages.domain_models.compliance import TemporalRule
+
 from backend.compliance.temporal import TemporalRuleEngine
+from packages.domain_models.compliance import TemporalRule
 
 
 class GPSTrajectoryPoint:
@@ -25,7 +26,7 @@ def evaluate_camera_relevance(point: GPSTrajectoryPoint, camera_lat: float, came
     # 1. Road level check (flyover vs surface)
     if point.road_level != camera_road_level:
         return False
-        
+
     # 2. Heading alignment check (same direction tolerance within 45 degrees)
     diff = abs(point.heading - camera_heading) % 360
     if diff > 180:
@@ -85,5 +86,5 @@ def test_sim_temporal_restriction_active():
     engine = TemporalRuleEngine()
     dt_active = datetime.datetime(2026, 8, 11, 9, 30, tzinfo=ZoneInfo("Asia/Kolkata"))
     rule = TemporalRule(start_time=datetime.time(8, 0), end_time=datetime.time(11, 0))
-    
+
     assert engine.is_rule_active(rule, dt_active) is True

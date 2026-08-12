@@ -9,12 +9,12 @@ class SpeedAlerter:
         if current_speed <= speed_limit:
             self.is_warning_active = False
             return "NO_WARNING"
-            
+
         over_speed = current_speed - speed_limit
-        
+
         # Hysteresis for single GPS spike could be implemented with historical smoothing,
         # here we simulate the output based on current state and threshold.
-        
+
         if over_speed <= 5:
             self.is_warning_active = True
             return "SUBTLE_WARNING"

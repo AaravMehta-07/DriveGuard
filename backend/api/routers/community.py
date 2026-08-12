@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, status
-from pydantic import BaseModel, Field
-from typing import List, Optional
-import uuid
-from sqlalchemy.ext.asyncio import AsyncSession
 import time
+import uuid
+from typing import List, Optional
 
-from backend.api.dependencies import get_db, get_current_user
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pydantic import BaseModel, Field
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from backend.api.dependencies import get_current_user, get_db
 
 router = APIRouter(prefix="/reports", tags=["community"])
 
@@ -37,10 +38,10 @@ def check_rate_limit(user_id: str):
     now = time.time()
     user_requests = RATE_LIMIT_STORE.get(user_id, [])
     user_requests = [req_time for req_time in user_requests if now - req_time < RATE_LIMIT_WINDOW]
-    
+
     if len(user_requests) >= RATE_LIMIT_MAX:
         return False
-        
+
     user_requests.append(now)
     RATE_LIMIT_STORE[user_id] = user_requests
     return True
@@ -56,13 +57,13 @@ async def submit_report(
     """
     if not check_rate_limit(user.id):
         raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS, 
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Rate limit exceeded. Maximum 10 reports per hour."
         )
-    
+
     report_id = uuid.uuid4()
     initial_confidence = 0.5
-    
+
     return ReportResponse(
         id=report_id,
         category=req.category,
@@ -85,7 +86,7 @@ async def confirm_report(
     """
     if req.status not in ["STILL_THERE", "NOT_THERE", "INCORRECT"]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid confirmation status")
-    
+
     return ReportResponse(
         id=id,
         category="SPEED_TRAP",

@@ -1,5 +1,7 @@
 from typing import Any, List
+
 from .pipeline import IngestionPipeline
+
 
 class CameraIngestionPipeline(IngestionPipeline):
     """
@@ -24,30 +26,30 @@ class CameraIngestionPipeline(IngestionPipeline):
         for candidate in candidates:
             # 2 & 3. Normalize & Geocode
             geocoded = await self.geocode(candidate)
-            
+
             # 4. Road Match
             matched = await self.road_match(geocoded)
-            
+
             # 5. Deduplicate (within 50m, same type, same direction)
             is_duplicate = await self.deduplicate(matched)
             if is_duplicate:
                 continue
-                
+
             # 6. Direction Analysis
             directed = await self.direction_analysis(matched)
-            
+
             # 7. Cross-Source Comparison
             compared = await self.cross_source_comparison(directed)
-            
+
             # 8. Confidence Score calculation
             confidence = await self.calculate_confidence(compared)
-            
+
             # 9 & 10. Review or auto-approve
             if confidence >= 0.8:
                 await self.save_verified_record(compared)
             else:
                 await self.queue_for_review(compared)
-                
+
             # Log audit step
             await self.log_audit("camera_candidate", compared.get("id"), "processed", after=compared)
 
@@ -62,7 +64,7 @@ class CameraIngestionPipeline(IngestionPipeline):
 
     async def deduplicate(self, data: dict) -> bool:
         return False
-        
+
     async def direction_analysis(self, data: dict) -> dict:
         return data
 
