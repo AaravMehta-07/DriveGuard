@@ -1,11 +1,9 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
 from typing import List, Optional
-from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
-import uuid
 
-from backend.api.dependencies import get_db, get_current_user
+from backend.api.dependencies import get_db
 from backend.geospatial.queries import GeospatialQueryService, BoundingBox
 
 router = APIRouter(prefix="/enforcement", tags=["enforcement"])

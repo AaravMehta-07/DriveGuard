@@ -1,4 +1,3 @@
-from typing import Any
 from .pipeline import IngestionPipeline
 
 class NoticeIngestionPipeline(IngestionPipeline):
@@ -19,7 +18,7 @@ class NoticeIngestionPipeline(IngestionPipeline):
 
     async def process(self, notice_data: dict):
         # Checking hash and versioning
-        doc_hash = self.hash_document(notice_data.get("content", ""))
+        self.hash_document(notice_data.get("content", ""))
         if await self.check_idempotency(notice_data.get("id"), notice_data.get("content", "")):
             return # Already processed
             

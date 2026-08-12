@@ -1,13 +1,11 @@
 import abc
 import hashlib
-import json
 import logging
 import asyncio
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.ingestion import IngestionJob, IngestionRun
-from models.sources import SourceDocument, SourceDocumentVersion
+from models.ingestion import IngestionRun
 from models.admin import AuditLog
 
 logger = logging.getLogger(__name__)

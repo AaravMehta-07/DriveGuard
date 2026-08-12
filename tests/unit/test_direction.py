@@ -1,5 +1,4 @@
 """Tests for direction math."""
-import pytest
 from backend.geospatial.queries import GeospatialQueryService
 
 def get_heading_diff(h1, h2):

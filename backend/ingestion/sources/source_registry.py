@@ -1,4 +1,3 @@
-from typing import List, Dict
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from models.sources import DataSource

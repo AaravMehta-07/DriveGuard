@@ -1,6 +1,6 @@
 """Community models."""
 from enum import Enum
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
 

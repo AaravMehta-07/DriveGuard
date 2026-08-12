@@ -1,5 +1,4 @@
 """Tests for alert arbitration."""
-import pytest
 from packages.domain_models.alerts import AlertSeverity
 
 def arbitrate_alerts(alerts):

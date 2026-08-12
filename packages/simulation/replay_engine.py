@@ -1,7 +1,7 @@
 """GPS Replay Engine for testing."""
 import json
 import asyncio
-from typing import List, Optional, AsyncGenerator, Dict, Any
+from typing import List, AsyncGenerator, Dict, Any
 from datetime import datetime, timedelta
 import random
 from packages.domain_models.location import RawLocationSample

@@ -17,7 +17,4 @@ output "storage_bucket_name" {
   description = "S3 bucket for uploads and offline packs"
 }
 
-output "cloudfront_domain_name" {
-  value       = aws_cloudfront_distribution.cdn.domain_name
-  description = "CloudFront distribution domain name"
-}
+

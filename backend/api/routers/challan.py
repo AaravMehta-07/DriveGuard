@@ -1,10 +1,9 @@
-from typing import List, Optional
+from typing import List
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
+from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from backend.api.dependencies import get_db, get_current_user
 from backend.ai.challan_extractor import ChallanExtractor

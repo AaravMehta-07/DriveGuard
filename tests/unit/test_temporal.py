@@ -1,5 +1,4 @@
 """Tests for temporal rules with Asia/Kolkata timezone support per Correction #40."""
-import pytest
 from datetime import datetime, time, date, timezone
 from zoneinfo import ZoneInfo
 from packages.domain_models.compliance import TemporalRule

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 class ComplianceEngine:
     async def analyze_route(self, route_wkt: str, vehicle_type: str) -> Dict[str, Any]:

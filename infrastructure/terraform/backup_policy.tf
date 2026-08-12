@@ -18,7 +18,7 @@ resource "aws_backup_plan" "driveguard_backup_plan" {
     rule_name         = "daily_retention_30_days"
     target_vault_name = aws_backup_vault.driveguard_vault.name
     schedule          = "cron(0 12 * * ? *)" # Run daily
-    
+
     lifecycle {
       delete_after = 30
     }

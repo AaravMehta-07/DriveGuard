@@ -1,7 +1,6 @@
 """Tests for compliance engine."""
 import pytest
 from datetime import datetime
-from packages.domain_models.compliance import ManeuverValidationResult
 from backend.compliance.engine import ComplianceEngine
 
 @pytest.mark.asyncio

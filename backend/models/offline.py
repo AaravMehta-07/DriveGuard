@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Integer
+from sqlalchemy import Column, String, Integer
 from geoalchemy2 import Geometry
 from .base import Base, UUIDMixin, TimestampMixin, SyntheticMixin
 

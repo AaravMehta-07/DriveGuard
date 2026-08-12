@@ -1,5 +1,4 @@
 """Tests for speed warning logic."""
-import pytest
 
 class SpeedAlerter:
     def __init__(self):

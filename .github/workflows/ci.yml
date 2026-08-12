@@ -23,13 +23,19 @@ jobs:
       - name: Python syntax & compile check
         run: |
           python -c "import glob, py_compile; files = glob.glob('backend/**/*.py', recursive=True) + glob.glob('packages/**/*.py', recursive=True) + glob.glob('tests/**/*.py', recursive=True); [py_compile.compile(f, doraise=True) for f in files]; print(f'Compiled {len(files)} Python files successfully!')"
+        env:
+          PYTHONPATH: ${{ github.workspace }}
       - name: Lint & Format check (ruff)
         run: |
           pip install ruff
           ruff check backend/ packages/ tests/
+        env:
+          PYTHONPATH: ${{ github.workspace }}
       - name: Unit & Provider Contract Tests
         run: |
           pytest tests/unit/ tests/provider-contract/ -v
+        env:
+          PYTHONPATH: ${{ github.workspace }}
 
   # Job 2: Backend integration tests & PostGIS spatial regression suite
   backend-integration:
@@ -72,18 +78,21 @@ jobs:
           cd backend && alembic upgrade head
         env:
           DATABASE_URL: postgresql+asyncpg://driveguard:driveguard@localhost:5432/driveguard_test
+          PYTHONPATH: ${{ github.workspace }}
       - name: PostGIS Metric Geography Regression Suite
         run: |
           pytest tests/integration/test_geospatial.py -v
         env:
           DATABASE_URL: postgresql+asyncpg://driveguard:driveguard@localhost:5432/driveguard_test
           REDIS_URL: redis://localhost:6379/0
+          PYTHONPATH: ${{ github.workspace }}
       - name: Mumbai Golden Routes & E2E & Simulation Suite
         run: |
           pytest tests/golden-routes/ tests/e2e/ tests/simulation/ -v
         env:
           DATABASE_URL: postgresql+asyncpg://driveguard:driveguard@localhost:5432/driveguard_test
           REDIS_URL: redis://localhost:6379/0
+          PYTHONPATH: ${{ github.workspace }}
 
   # Job 3: Admin Next.js Dashboard Build
   admin-quality:

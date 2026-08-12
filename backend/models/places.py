@@ -1,5 +1,4 @@
 from sqlalchemy import Column, String, ForeignKey
-from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 from .base import Base, UUIDMixin, TimestampMixin, SyntheticMixin
 

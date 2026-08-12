@@ -14,7 +14,6 @@ IMPORTANT PostGIS Rules for DriveGuard V3:
 from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
 import geoalchemy2
 
 revision: str = '001'

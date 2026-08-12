@@ -9,7 +9,6 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from backend.api.dependencies import get_db
 
 router = APIRouter(prefix="/offline", tags=["offline"])

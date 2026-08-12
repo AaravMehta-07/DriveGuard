@@ -1,6 +1,5 @@
 """Tests for confidence scoring."""
 import pytest
-from packages.domain_models.sources import SourceConfidenceLevel
 from backend.compliance.confidence import SourceConfidenceEngine
 
 def test_single_official():

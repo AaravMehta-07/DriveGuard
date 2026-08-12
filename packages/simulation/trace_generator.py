@@ -23,7 +23,6 @@ class TraceGenerator:
         trace = []
         lat = 12.960
         lon = 77.594
-        speed = 16.6 # ~60 km/h in m/s
         for i in range(120):
             lat += 0.0001
             trace.append(self._create_sample(lat, lon, 60, 0, i))

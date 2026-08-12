@@ -1,10 +1,9 @@
-import json
 from typing import List, Optional
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, func, or_
+from sqlalchemy import select, func
 from pydantic import BaseModel
 
 from backend.api.dependencies import get_db, get_current_user
@@ -209,9 +208,9 @@ async def get_coverage(db: AsyncSession = Depends(get_db)):
     # Total roads
     total_roads = (await db.execute(select(func.count(RoadSegment.id)))).scalar() or 1
     # Roads mapped
-    mapped_roads = (await db.execute(select(func.count(RoadSegment.id)).where(RoadSegment.is_mapped == True))).scalar() or 0
+    mapped_roads = (await db.execute(select(func.count(RoadSegment.id)).where(RoadSegment.is_mapped.is_(True)))).scalar() or 0
     # Speed limit roads
-    speed_limit_roads = (await db.execute(select(func.count(RoadSegment.id)).where(RoadSegment.speed_limit != None))).scalar() or 0
+    speed_limit_roads = (await db.execute(select(func.count(RoadSegment.id)).where(RoadSegment.speed_limit.is_not(None)))).scalar() or 0
     
     road_network_coverage = (mapped_roads / total_roads) * 100
     speed_limit_coverage = (speed_limit_roads / total_roads) * 100

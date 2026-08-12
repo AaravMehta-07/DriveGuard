@@ -5,13 +5,10 @@ Tests actual production compliance logic, direction matching, temporal evaluatio
 and speed transition rules for key Mumbai arterial routes (WEH, Marine Drive, BKC, EEH).
 """
 
-import pytest
 import datetime
 from zoneinfo import ZoneInfo
 from packages.domain_models.compliance import TemporalRule
 from backend.compliance.temporal import TemporalRuleEngine
-from backend.compliance.engine import ComplianceEngine, ManeuverValidationResult
-from backend.geospatial.queries import DirectionMatch
 
 
 def test_weh_northbound_speed_transitions_and_flyover():

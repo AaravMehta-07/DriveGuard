@@ -112,11 +112,11 @@ resource "aws_db_instance" "postgres" {
   allocated_storage     = 50
   max_allocated_storage = 200
   storage_type          = "gp3"
-  
+
   db_name  = "driveguard"
   username = var.db_username
   password = var.db_password
-  
+
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
   db_subnet_group_name   = aws_db_subnet_group.default.name
 
@@ -189,9 +189,9 @@ resource "aws_ecs_task_definition" "api" {
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
 
   container_definitions = jsonencode([{
-    name      = "api"
-    image     = "driveguard-api:latest"
-    essential = true
+    name         = "api"
+    image        = "driveguard-api:latest"
+    essential    = true
     portMappings = [{ containerPort = 8000, hostPort = 8000 }]
     logConfiguration = {
       logDriver = "awslogs"

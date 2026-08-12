@@ -5,12 +5,10 @@ Feeds production rule engines, compliance logic, and camera relevance filters
 with simulated GPS trajectory sequences covering edge cases.
 """
 
-import pytest
 import datetime
 from zoneinfo import ZoneInfo
 from packages.domain_models.compliance import TemporalRule
 from backend.compliance.temporal import TemporalRuleEngine
-from backend.compliance.engine import ComplianceEngine, ManeuverValidationResult
 
 
 class GPSTrajectoryPoint:

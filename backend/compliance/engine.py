@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import List, Any, Dict, Optional
+from typing import List, Any, Dict
 from sqlalchemy import text
 from .temporal import TemporalRuleEngine
 from .confidence import SourceConfidenceEngine
@@ -40,7 +40,7 @@ class ComplianceEngine:
             events.sort(key=lambda e: e.get("along_route_distance_m", 0) if isinstance(e, dict) else getattr(e, "along_route_distance_m", 0))
             confidence = data.get("compliance_data_coverage_percent", 0.0)
             return RouteComplianceScan(events, confidence)
-        except Exception as err:
+        except Exception:
             logger.error("Error during route compliance scan", exc_info=True)
             return RouteComplianceScan([], 0.0)
 
@@ -72,7 +72,7 @@ class ComplianceEngine:
                     return ManeuverValidationResult(status="PROHIBITED", reason=f"Matched {r['restriction_type']}")
             
             return ManeuverValidationResult(status="ALLOWED", reason="No active restriction enforced at this time")
-        except Exception as err:
+        except Exception:
             logger.error("Database query error during maneuver validation", exc_info=True)
             return ManeuverValidationResult(status="UNCERTAIN", reason="Database query failed during evaluation")
 
@@ -90,7 +90,7 @@ class ComplianceEngine:
             """)
             result = await self.geo_service._db.execute(query, {"lon": point_lon, "lat": point_lat, "radius": radius_m})
             return [dict(row) for row in result.mappings().all()]
-        except Exception as err:
+        except Exception:
             logger.error("Error evaluating nearby restrictions", exc_info=True)
             return []
 
@@ -104,7 +104,7 @@ class ComplianceEngine:
             query = text("SELECT * FROM speed_limits WHERE segment_id = :seg_id")
             result = await self.geo_service._db.execute(query, {"seg_id": road_segment_id})
             return [dict(row) for row in result.mappings().all()]
-        except Exception as err:
+        except Exception:
             logger.error("Error getting temporal restrictions", exc_info=True)
             return []
 
